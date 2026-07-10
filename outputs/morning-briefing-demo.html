@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Morning Briefing Agent Demo</title>
+  <style>
+    :root {
+      --bg: #f7f6f1;
+      --panel: #ffffff;
+      --ink: #22231f;
+      --muted: #6b6f66;
+      --line: #dedbd1;
+      --accent: #1f7a4d;
+      --accent-soft: #e5f3eb;
+      --urgent: #b2332f;
+      --urgent-soft: #f8e8e5;
+      --gold: #9a6a16;
+      --gold-soft: #f4ead8;
+      --shadow: 0 16px 40px rgba(31, 36, 29, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.35;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .topbar,
+    .toolbar,
+    .brief-grid,
+    .source-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .topbar {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 34px;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 720px;
+    }
+
+    .status {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+      color: var(--accent);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .toolbar {
+      grid-template-columns: 1.2fr 1fr;
+      margin-bottom: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .delivery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .segment {
+      border: 1px solid var(--line);
+      background: #fbfaf7;
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .segment.active {
+      background: var(--accent-soft);
+      border-color: #9bc9ad;
+      color: var(--accent);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .metric {
+      border-left: 3px solid var(--accent);
+      padding-left: 10px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .brief-grid {
+      grid-template-columns: 1.55fr 0.95fr;
+      align-items: start;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 12px;
+      font-size: 17px;
+    }
+
+    .item-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px;
+      background: #fffefa;
+    }
+
+    .item.urgent {
+      border-color: #e4b9b2;
+      background: var(--urgent-soft);
+    }
+
+    .item-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .pill {
+      align-self: start;
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .pill.urgent {
+      background: var(--urgent);
+      color: #fff;
+    }
+
+    .pill.gold {
+      background: var(--gold-soft);
+      color: var(--gold);
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .why {
+      margin: 0;
+      color: #3f443d;
+    }
+
+    .actions {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .actions li {
+      margin: 0 0 10px;
+    }
+
+    .source-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 16px;
+    }
+
+    .source {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+
+    .source strong {
+      display: block;
+    }
+
+    .source span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 860px) {
+      .topbar,
+      .toolbar,
+      .brief-grid,
+      .source-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status {
+        justify-content: flex-start;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="topbar">
+      <div>
+        <h1>Morning Briefing</h1>
+        <p class="subtitle">A personal operations layer for email, job applications, newsletters, calendar, Slack, and family support.</p>
+      </div>
+      <div class="status"><span class="dot"></span> Ready for 7:30 AM delivery</div>
+    </section>
+
+    <section class="toolbar">
+      <div class="panel">
+        <div class="delivery">
+          <span class="label">Primary delivery</span>
+          <span class="segment active">Slack DM</span>
+          <span class="segment">Email archive</span>
+          <span class="segment">Dashboard</span>
+        </div>
+      </div>
+      <div class="panel metrics">
+        <div class="metric"><strong>6</strong><span>items reviewed</span></div>
+        <div class="metric"><strong>5</strong><span>suggested actions</span></div>
+        <div class="metric"><strong>3</strong><span>account profiles</span></div>
+      </div>
+    </section>
+
+    <section class="brief-grid">
+      <div class="panel">
+        <h2 class="section-title">Priority Brief <span class="label">Today</span></h2>
+        <div class="item-list">
+          <article class="item urgent">
+            <div class="item-title">Action required: portfolio interview availability <span class="pill urgent">Urgent</span></div>
+            <div class="meta">recruiting@startup.example via Personal Gmail</div>
+            <p class="why">Needs confirmation by 2 PM. Handle before normal inbox review.</p>
+          </article>
+          <article class="item">
+            <div class="item-title">Lab results are available <span class="pill gold">Mom Watch</span></div>
+            <div class="meta">portal@clinic.example via Mom Gmail</div>
+            <p class="why">Sensitive family-support item. Review manually before taking action.</p>
+          </article>
+          <article class="item">
+            <div class="item-title">Mock interview prep <span class="pill">Calendar</span></div>
+            <div class="meta">Personal Calendar, today at 11:00 AM</div>
+            <p class="why">Prep block before an interview-related task. Confirm notes and materials.</p>
+          </article>
+          <article class="item">
+            <div class="item-title">Application received: Product Engineer <span class="pill">Job Search</span></div>
+            <div class="meta">jobs@company.example via Job Search Gmail</div>
+            <p class="why">Track status and set a follow-up reminder if there is no response.</p>
+          </article>
+          <article class="item">
+            <div class="item-title">#launch: copy review needed <span class="pill">Slack</span></div>
+            <div class="meta">alex in #launch</div>
+            <p class="why">A direct ask for input. Reply or convert it into a task.</p>
+          </article>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h2 class="section-title">Suggested Actions</h2>
+        <ol class="actions">
+          <li>Confirm portfolio interview availability.</li>
+          <li>Review mom's portal item with care and privacy boundaries.</li>
+          <li>Prepare for the mock interview block.</li>
+          <li>Log the Product Engineer application status.</li>
+          <li>Reply to Alex on launch copy.</li>
+        </ol>
+      </aside>
+    </section>
+
+    <section class="panel source-grid">
+      <div class="source">
+        <div><strong>Personal Gmail</strong><span>Unread and recent priority mail</span></div>
+        <span class="pill">Connected</span>
+      </div>
+      <div class="source">
+        <div><strong>Job Search Gmail</strong><span>Applications, interviews, recruiter updates</span></div>
+        <span class="pill">Connected</span>
+      </div>
+      <div class="source">
+        <div><strong>Mom Gmail</strong><span>Separate monitored profile</span></div>
+        <span class="pill gold">Protected</span>
+      </div>
+      <div class="source">
+        <div><strong>Slack</strong><span>Recent asks from important channels</span></div>
+        <span class="pill">Connected</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
