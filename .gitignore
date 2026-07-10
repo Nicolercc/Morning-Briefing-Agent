@@ -9,6 +9,7 @@ __pycache__/
 .ruff_cache/
 token.json
 credentials.json
+credentials/*.json
 tokens/
 *.log
 .DS_Store

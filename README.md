@@ -33,6 +33,12 @@ cp .env.example .env
 PYTHONPATH=src python3 -m morning_briefing_agent --delivery slack
 ```
 
+Check local configuration:
+
+```bash
+PYTHONPATH=src python3 -m morning_briefing_agent.doctor
+```
+
 From the project root, either install in editable mode:
 
 ```bash
@@ -64,6 +70,16 @@ Best practice: use a bot token for delivery and keep read tokens separate from
 write tokens. For local personal prototypes, a user token can work, but it
 represents you directly and should not be used in shared production systems.
 
+## Gmail Credentials
+
+For personal Gmail accounts, use user OAuth. You need one OAuth client file for
+the app and one generated token file per mailbox. A Google service account is
+only appropriate for Google Workspace domain-wide delegation.
+
+See [docs/credential-setup.md](docs/credential-setup.md) for the exact `.env`
+shape and the difference between OAuth client credentials, token files, and
+service accounts.
+
 ## Architecture
 
 ```text
@@ -81,7 +97,7 @@ connectors -> normalized inbox -> classifier/ranker -> brief renderer -> deliver
 1. Gmail read-only connector with one OAuth token per account.
 2. Calendar read-only connector for your schedule.
 3. Slack read connector for important channels.
-4. Slack read connector for important channels.
+4. Connect Slack delivery to your real channel or DM.
 5. Email delivery as an archive and fallback.
 
 Keep all tokens out of git. Use `.env`, `.gitignore`, and eventually macOS

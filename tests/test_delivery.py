@@ -37,6 +37,21 @@ class DeliveryTest(unittest.TestCase):
         self.assertFalse(result.ok)
         self.assertIn("SLACK_BOT_TOKEN", result.detail)
 
+    def test_slack_treats_placeholders_as_missing(self) -> None:
+        result = deliver(
+            "Morning brief",
+            DeliveryChannel.SLACK,
+            dry_run=False,
+            slack_config=SlackConfig(
+                token="replace-with-your-slack-bot-or-user-oauth-token",
+                channel_id="replace-with-your-slack-channel-or-dm-id",
+                username="Morning Briefing Agent",
+            ),
+        )
+
+        self.assertFalse(result.ok)
+        self.assertIn("SLACK_BOT_TOKEN", result.detail)
+
 
 if __name__ == "__main__":
     unittest.main()
